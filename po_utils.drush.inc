@@ -55,6 +55,12 @@ function drush_po_utils_po_import() {
     }
   }
 
+  // Add profile directory
+  $profile_path = 'profiles/' . $profile . '/translations/' . $langcode . ".po" ;
+  if (file_exists($profile_path)) {
+    $file_paths[] = $profile_path;
+  }
+
   // Add Drupal core translations
   if(!$customOnly) {
     $core_path = "translations/" . $langcode . ".po";
