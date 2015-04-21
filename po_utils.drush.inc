@@ -44,7 +44,8 @@ function drush_po_utils_po_import() {
   $mode = isset($replace) ? LOCALE_IMPORT_OVERWRITE : LOCALE_IMPORT_KEEP;
 
   // Get all .po files
-  $path  = $customOnly ? 'profiles/tatooine/modules/custom' : 'profiles/tatooine/modules';
+  $profile = drupal_get_profile();
+  $path  = $customOnly ? 'profiles/' . $profile . '/modules/custom' : 'profiles/' . $profile . '/modules';
   $directory = new RecursiveDirectoryIterator($path);
   $iterator = new RecursiveIteratorIterator($directory);
   $file_paths = array();
