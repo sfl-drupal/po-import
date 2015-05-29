@@ -46,12 +46,14 @@ function drush_po_utils_po_import() {
   // Get all .po files
   $profile = drupal_get_profile();
   $path  = $customOnly ? 'profiles/' . $profile . '/modules/custom' : 'profiles/' . $profile . '/modules';
-  $directory = new RecursiveDirectoryIterator($path);
-  $iterator = new RecursiveIteratorIterator($directory);
-  $file_paths = array();
-  foreach($iterator as $file) {
-    if (substr($file, strrpos($file, '/') + 1) == $langcode . '.po') {
-      $file_paths[] = $file->getPathName();
+  if (file_exists($path)) {
+    $directory = new RecursiveDirectoryIterator($path);
+    $iterator = new RecursiveIteratorIterator($directory);
+    $file_paths = array();
+    foreach($iterator as $file) {
+      if (substr($file, strrpos($file, '/') + 1) == $langcode . '.po') {
+        $file_paths[] = $file->getPathName();
+      }
     }
   }
 
@@ -71,23 +73,25 @@ function drush_po_utils_po_import() {
 
   // Display an error if no .po file is found
   if (empty($file_paths)) {
-    drush_set_error(dt('No available .po file for this language.'));
+    drush_log(dt('No available .po file for this language.'));
   }
 
   // Import language files
-  foreach ($file_paths as $file_path) {
+  else {
+    foreach ($file_paths as $file_path) {
 
-    // Construct a fake file object
-    $file = new stdClass();
-    $file->uid = 1;
-    $file->status = 0;
-    $file->filename = trim(drupal_basename($file_path), '.');
-    $file->uri = $file_path;
+      // Construct a fake file object
+      $file = new stdClass();
+      $file->uid = 1;
+      $file->status = 0;
+      $file->filename = trim(drupal_basename($file_path), '.');
+      $file->uri = $file_path;
 
-    // Now import strings
-    if ($return = _locale_import_po($file, $langcode, $mode, 'default') == FALSE) {
-      $variables = array('%filename' => $file->filename);
-      drush_log(dt('The translation import of %filename failed.', $variables), 'error');
+      // Now import strings
+      if ($return = _locale_import_po($file, $langcode, $mode, 'default') == FALSE) {
+        $variables = array('%filename' => $file->filename);
+        drush_log(dt('The translation import of %filename failed.', $variables), 'error');
+      }
     }
   }
 }
